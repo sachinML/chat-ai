@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  milvus:
+    image: milvusdb/milvus:v2.3.1
+    container_name: milvus
+    ports:
+      - "19530:19530"  # Milvus server port
+      - "9091:9091"    # Milvus console
+    volumes:
+      - milvus_data:/var/lib/milvus
+    environment:
+      - "ETCD_ROOT_PATH=/etcd"
+
+  fastapi_app:
+    build: .
+    container_name: fastapi_app
+    ports:
+      - "8000:8000"  # FastAPI server port
+    depends_on:
+      - milvus
+    environment:
+      - MILVUS_HOST=milvus
+      - MILVUS_PORT=19530
+
+volumes:
+  milvus_data:
